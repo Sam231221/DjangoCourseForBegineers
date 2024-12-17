@@ -797,11 +797,11 @@ Django models support the same three relationships supported by relational datab
 
 A one to many relationship implies that one model record can have many other model records associated with itself. For example, a `Parent` model record can have many `Child` model records associated with it and yet an `Child` belongs to a single `Parent` record.
 
-To define a one to many relationship in Django models, you use the `ForeignKey` data type on the model that has the many records (e.g. on the `Child` model). Listing 7-22 illustrates a sample of a one to many Django relationship.
+To define a one to many relationship in Django models, you use the `ForeignKey` data type on the model that has the many records (e.g. on the `Child` model).
 
-### **Listing 7-22. One to many Django model relationship**
+### **Example: One to many Django model relationship**
 
-```
+```python
 class Parentmodel(models.Model):
 	name = models.CharField(max_length=200, null=True)
 	age = models.IntegerField(default=0, null=True, blank=True)
@@ -819,7 +819,7 @@ class Childmodel(models.Model):
 
 ```
 
-The first Django model in listing 7-22 is `Parent` and has the `name` field. Next, in listing 7-22 is the `Child`  model which has a `parent` field, that itself has the `models.ForeignKey(Parent)` definition. The `models.ForeignKey()` definition creates the one to many relationship, where the first argument `Parent` indicates the relationship model.
+The `models.ForeignKey()` definition creates the one to many relationship, where the first argument `Parent` indicates the relationship model.
 
 In addition to the database level benefits of creating a one to many relationship (e.g. improved data maintenance), Django models also provide an API to simplify the access of data related to this kind of relationship which is explained in the next chapter on [CRUD records across Django model relationships](https://www.webforefront.com/django/relationshipmodelrecords.html).
 
@@ -900,7 +900,9 @@ and on_delete=models.CASCADE (e.g. models.ForeignKey(Menu, blank=True, on_delete
 ```
 
 <aside>
-⚠️ **Note:** The add(), create(), remove(), clear() and set() relationship methods all apply database changes immediately for all types of related fields. This means there's no need to call save() on either end of the relationship.
+⚠️ **Note:** The add(), create(), remove(),delete(), clear() and set() relationship methods all apply database changes immediately for all types of related fields. This means there's no need to call save() on either end of the relationship.
+
+While get(), all(), count(),filter() are read only operations(cause no db changes) which could be used for querying data (e.g., creating copies with list comprehensions).
 
 </aside>
 
@@ -908,9 +910,9 @@ and on_delete=models.CASCADE (e.g. models.ForeignKey(Menu, blank=True, on_delete
 
 A many to many relationship implies that many records can have many other records associated amongst one another. For example, `Store` model records can have many `Amenity` records, just as `Amenity` records can belong to many `Store` records. To define a many to many relationship in Django models you use the `ManyToManyField` data type. Listing 7-23 illustrates a sample of a many to many Django relationship.
 
-### **Listing 7-23. Many to many Django model relationship**
+### **Examples: Many to many Django model relationship**
 
-```
+```python
 #2.Many to many relationship
 class Book(models.Model):
     name = models.CharField(max_length=30, null=True)
@@ -928,11 +930,7 @@ class Stationary(models.Model):
 
 ```
 
-The first Django model in listing 7-23 is `Book` and has the `name` and `description` fields. Next, in listing 7-23 is the `Stationary` Django model which has the `books` field, that itself has the `models.ManyToManyField(Book,blank=True)` definition. The `models.ManyToManyField()` definition creates the many to many relationship via a *junction table[[5]](https://www.webforefront.com/django/setuprelationshipsdjangomodels.html#footnote-5)*, where the first argument `Book` indicates the relationship model and the optional `blank=True` argument allows a `Stationary` record to be created without the need of an `books` value.
-
-In this case, the junction table created by Django is used to hold the relationships between the `Book` and `Store` records through their respective keys.
-
-Although you don't need to manipulate the junction table directly, for reference purposes, Django uses the syntax `<model_name>_<model_field_with_ManyToManyField>` to name it.
+The `models.ManyToManyField()` definition creates the many to many relationship , where the first argument `Book` indicates the relationship model and the optional `blank=True` argument allows a `Stationary` record to be created without the need of an `books` value.
 
 In addition to the database level benefits of creating a many to many relationship (e.g. improved data maintenance), Django models also provide an API to simplify the access of data related to this kind of relationship, which is explained in the next chapter on [CRUD records across Django model relationships](https://www.webforefront.com/django/relationshipmodelrecords.html).
 
@@ -996,7 +994,7 @@ A one to one relationship implies that one record is associated with another rec
 
 For example, generic `Item` model records can have a one to one relationship to `Drink` model records, where the latter records hold information specific to drinks (e.g. caffeine content) and the former records hold generic information about items (e.g. price). To define a one to one relationship in Django models you use the `OneToOneField` data type. Listing 7-24 illustrates a sample of a one to one Django relationship.
 
-### **Listing 7-24 One to one Django model relationship**
+### **Example: One to one Django model relationship**
 
 ```
 from django.db import models
@@ -1017,15 +1015,13 @@ class Drink(models.Model):
 
 ```
 
-The first Django model in listing 7-24 is `Item` which is similar to the one presented in [listing 7-22](https://www.webforefront.com/django/setuprelationshipsdjangomodels.html#listing-7-22), except the version in listing 7-24 has the additional `calories` and `price` fields. Next, in listing 7-24 is the `Drink` model which has the `item` field, that itself has the `models.OneToOneField(Amenity,on_delete=models.CASCADE,primary_key=True)` definition.
-
 The `models.OneToOneField()` definition creates the one to one relationship, where the first argument `Item` indicates the relationship model. The second argument `on_delete=models.CASCADE` tells Django that in case the relationship record is deleted (i.e. the `Item`) its other record (i.e. the `Drink`) also be deleted, this last argument prevents orphaned data. Finally, the `primary_key=True` tells Django to use the relationship id (i.e. `Drink.id`) as the primary key instead of using a separate and default column `id`, a technique that makes it easier to track relationships.
 
 In addition to the database level benefits of creating a one to one relationship (e.g. improved data maintenance), Django models also provide an API to simplify the access of data related to this kind of relationship, which is explained in the next chapter on [CRUD records across Django model relationships](https://www.webforefront.com/django/relationshipmodelrecords.html).
 
 **CRUD OPERATION WITH `_set` syntax**
 
-```
+```python
 from django.contrib.auth.models import User
 
 class Customer(models.Model):  #
@@ -1063,7 +1059,7 @@ Customer.objects.get(user__name='Sam')
 
 ## **Options for relationship model data types**
 
-Previously you explored [Django data types and their many options](https://www.webforefront.com/django/modeldatatypesandvalidation.html) to customize how they handle data, such as : limiting values, allowing empty and null values, establishing predetermined values and enforcing DDL rules. In this section you'll learn about the options available for Django relationship model data types.
+In this section you'll learn about the options available for Django relationship model data types.
 
 **Note** Options described in the [general purpose model data type section](https://www.webforefront.com/django/modeldatatypesandvalidation.html) (e.g. blank, unique) are applicable to relationship model data types unless noted.
 
@@ -1096,7 +1092,7 @@ The `on_delete` option is available for all three relationship model data type
 
 Model relationships sometimes have recursive relationships. This is a common scenario in one to many relationship models with parent-child relationships. For example, a `Category` model can have a `parent` field which in itself is another `Category` model or a `Person` model can have a `relatives` field which in itself are other `Person` models. To define this type of relationship you must use the `'self'` keyword to reference the same model, as shown in listing 7-25.
 
-### **Listing 7-25 One to many Django model relationship with self-referencing model**
+### **Example: One to many Django model relationship with self-referencing model**
 
 ```
 from django.db import models
@@ -1109,17 +1105,13 @@ class Person(models.Model):
 
 ```
 
-Although model relationship data types typically express their relationships through model object references (e.g. `models.ForeignKey(Menu)`), it's also valid to use literal strings to reference models (e.g. `models.ForeignKey('Menu')`). This technique is helpful when the model definition order does not allow you to reference model objects that are not yet in scope and is a technique often referred to as model 'lazy-loading'.
-
-The `parent_link=True` option is an exclusive option for one to one relationships (i.e the `models.OneToOneField` data type) used when inheriting model classes, to help indicate the child class field should be used as a link to the parent class.
-
 ### **Reverse relationships: related_name, related_query_name and symmetrical**
 
-When you use relationship model data types, Django automatically establishes the reverse relationship between data types with the the `_set` reference. This mechanism is illustrated in listing 7-26.
+When you use relationship model data types, Django automatically establishes the reverse relationship between data types with the the `_set` reference. This mechanism is illustrated in the below.
 
-### **Listing 7-26 One to many Django model relationship with reverse relationship references**
+### **Example: One to many Django model relationship with reverse relationship references**
 
-```
+```python
 from django.db import models
 
 class Menu(models.Model):
@@ -1141,19 +1133,170 @@ same_all_items_with_breakfast_menu = breakfast.item_set.all()
 
 ```
 
-As you can see in listing 7-26, there are two routes between a Django relationship. The direct route involves using the model with the relationship definition, in this case, `Item` gets all the `Item` records with a `Menu` *Breakfast* instance. To do this, you use `Item` and filter on the `menu ForeignKey` reference (e.g. `Item.objects.filter(menu=breakfast)`).
+The direct route involves using the model with the relationship definition, in this case, `Item` gets all the `Item` records with a `Menu` *Breakfast* instance. To do this, you use `Item` and filter on the `menu ForeignKey` reference (e.g. `Item.objects.filter(menu=breakfast)`).
 
-But it's also possible to use a `Menu` instance (e.g. `breakfast` in listing 7-26) and get all `Item` records with a `menu` instance, this is called a reverse relationship or path. As you can see in the listing 7-26, the reverse relationship uses the `<model_instance>.<related_model>_set` syntax (e.g. `breakfast.item_set.all()` to get all `Item` records with a the `breakfast` instance).Now that you know what a reverse relationship is, let's explore the options associated with this term.
+But it's also possible to use a `Menu` instance and get all `Item` records with a `menu` instance, this is called a reverse relationship or path. As you can see in the example, the reverse relationship uses the `<model_instance>.<related_model>_set` syntax (e.g. `breakfast.item_set.all()` to get all `Item` records with a the `breakfast` instance).Now that you know what a reverse relationship is, let's explore the options associated with this term.
 
-The `related_name` option allows you to customize the name or disable a reverse model relationship. Renaming a reverse relationship provides more intuitive syntax over the `_set` syntax from listing 7-26, where as disabling a reverse relationship is helpful when a related model is used in other contexts and blocking access to a reverse relationship is required for accessibility reasons.
+In Django, the `related_name` attribute is used in relationships like `ForeignKey`, `OneToOneField`, and `ManyToManyField` to provide a **reverse name** for accessing related objects.
 
-For example, in listing 7-26 the reverse relationship uses the `breakfast.item_set.all()` syntax, but if you change the field to `models.ForeignKey(...related_name='menus')`, you can use the reverse relationship `breakfast.menus.all()` syntax. To disable a reverse relationship you can use the `+` (plus sign) on the `related_name` value (e.g. `models.ForeignKey(...related_name='+')`).
+By default, Django generates the reverse relation using the lowercase name of the related model followed by `_set`. However, using `related_name`, you can customize this reverse relation to make it more intuitive and conflict-free.
 
-Reverse relationships are also available as part of queries, as illustrated in listing 7-27.
+---
+
+### **Why Use `related_name`?**
+
+1. **Custom Reverse Accessor:** It allows you to give a meaningful name for reverse relations instead of the default `<modelname>_set`.
+2. **Avoid Naming Conflicts:** When a model has multiple relationships to the same model, `related_name` avoids ambiguity by providing distinct names.
+3. **Code Readability:** A clear `related_name` improves code readability and maintainability.
+
+---
+
+### **Syntax**
+
+`related_name` is used in fields that create relationships:
+
+```python
+ForeignKey(to, related_name='name', ...)
+OneToOneField(to, related_name='name', ...)
+ManyToManyField(to, related_name='name', ...)
+```
+
+---
+
+### **Examples**
+
+#### 1. **Basic Example**
+
+By default, Django creates a reverse accessor with `_set`.
+
+```python
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+```
+
+Accessing related objects:
+
+```python
+author = Author.objects.get(id=1)
+books = author.book_set.all()  # Default reverse accessor
+```
+
+Using `related_name` to customize the reverse accessor:
+
+```python
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author, related_name='books', on_delete=models.CASCADE)
+```
+
+Now, you can access related books using the customized name:
+
+```python
+author = Author.objects.get(id=1)
+books = author.books.all()  # Access using 'books' instead of 'book_set'
+```
+
+---
+
+#### 2. **Avoid Naming Conflicts**
+
+When you have multiple relationships to the same model, `related_name` is essential to distinguish between the reverse accessors.
+
+```python
+class City(models.Model):
+    name = models.CharField(max_length=100)
+
+class Person(models.Model):
+    name = models.CharField(max_length=100)
+    birth_city = models.ForeignKey(City, related_name='birth_city_people', on_delete=models.CASCADE)
+    residence_city = models.ForeignKey(City, related_name='residence_city_people', on_delete=models.CASCADE)
+```
+
+Accessing related objects:
+
+```python
+city = City.objects.get(name='New York')
+birth_people = city.birth_city_people.all()  # People born in New York
+residents = city.residence_city_people.all()  # People residing in New York
+```
+
+---
+
+#### 3. **One-to-One Relationship**
+
+For `OneToOneField`, `related_name` works the same way:
+
+```python
+class UserProfile(models.Model):
+    user = models.OneToOneField('auth.User', related_name='profile', on_delete=models.CASCADE)
+    bio = models.TextField()
+```
+
+Accessing the related profile:
+
+```python
+user = User.objects.get(username='john')
+profile = user.profile  # Access profile using related_name
+```
+
+---
+
+#### 4. **Many-to-Many Relationship**
+
+For `ManyToManyField`, `related_name` customizes the reverse accessor.
+
+```python
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+
+class Course(models.Model):
+    title = models.CharField(max_length=100)
+    students = models.ManyToManyField(Student, related_name='courses')
+```
+
+Accessing related objects:
+
+```python
+student = Student.objects.get(name='Alice')
+courses = student.courses.all()  # Access courses through related_name
+```
+
+---
+
+### **Special Values for `related_name`**
+
+- **`'+'`**: If you set `related_name='+'`, Django will **not** create a reverse relation for that field. This is useful if you don't need a reverse accessor.
+
+```python
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author, related_name='+', on_delete=models.CASCADE)
+```
+
+Trying to access `author.book_set` will raise an error because the reverse relation does not exist.
+
+---
+
+### **Summary**
+
+| Field Type            | Example Syntax                                                                       | Reverse Accessor Example   |
+| --------------------- | ------------------------------------------------------------------------------------ | -------------------------- |
+| Default Reverse       | `author = models.ForeignKey(Author, on_delete=models.CASCADE)`                       | `author.book_set.all()`    |
+| Custom `related_name` | `author = models.ForeignKey(Author, related_name='books', on_delete=models.CASCADE)` | `author.books.all()`       |
+| Multiple Relations    | Use unique `related_name` values to resolve conflicts                                | `city.birth_city_people`   |
+| No Reverse Relation   | `related_name='+'`                                                                   | No reverse accessor exists |
+
+---
+
+By using `related_name`, you make your code cleaner, avoid conflicts, and improve the readability of reverse relationships in Django models.
 
 ### **Listing 7-27 One to many Django model relationship with reverse relationship queries**
 
-```
+```python
 # Based on models fromlisting 7-26
 
 # Direct access, Item records with price higher than 1
@@ -1170,22 +1313,161 @@ The `related_query_name` option is used to override the `related_name` optio
 
 Covering an edge-case for many to many relationships is the `symmetrical` option. If you create a many to many relationship that references itself -- as illustrated in [listing 7-25](https://www.webforefront.com/django/setuprelationshipsdjangomodels.html#listing-7-25) with the `'self'` syntax -- Django assumes the relationship is symmetrical (e.g. all `Person` instances are `relatives` and therefore requires no reverse relationships since it would be redundant) thus self referencing many to many relationships forgoe adding a `_set` reverse relationship to the field. You can use `symmetrical=False` to force Django to maintain the reverse relationship.
 
-**Tip** The next chapter covers [Django model relationship queries](https://www.webforefront.com/django/relationshipmodelrecords.html) in greater detail.
-
 ### **Database options: to_field, db_constraint, swappable, through, through_fields and db_table**
 
-By default, Django model relationships are established on the primary key of a model which in itself defaults to a model's `id` field. For example, the field `menu = models.ForeignKey(Menu)` stores the `id` from a `Menu` instance as the relationship reference. You can override this default behavior with the `to_field` option and specify a different field on which to establish the relationship reference. Note that if you assign a `to_field` value, this field must be set with `unique=True`.
+Here’s a detailed explanation of the database-related options `to_field`, `db_constraint`, `swappable`, `through`, `through_fields`, and `db_table` in Django. These options are often used in model relationships like `ForeignKey`, `ManyToManyField`, and `OneToOneField`.
 
-By default, Django follows relational database conventions and constrains relationships at the database level. The `db_constraint` option -- which defaults to `True` -- allows you to bypass this constraint by assigning it a `False` value. Setting `db_constraint=False` should only by used when you know beforehand the data relationships in a database is broken and doesn't require constraint checking at the database level.
+---
 
-The `swappable` option is intended to influence migrations for models that contain relationships and are swappable with other models. Unless you implement a very sophisticated model hierarchy with model swapping features, this option is primarily intended for Django's built-in `User` model which uses a relationship and is often swapped out for custom user models. The chapter on [user management contains more details on this swappable model option](https://www.webforefront.com/django/customusermodel.html) .
+### 1. **`to_field`**
 
-Specific to many to many model relationships (i.e. the `models.ManyToManyField` data type) the `through`, `through_fields &` `db_table` options, influence the junction table used in these type of relationships. If you wan't to change the default name for a many to many junction table, you can use the `db_table` option to specify a custom junction table name.
+The `to_field` option is used in relationships (`ForeignKey`, `OneToOneField`) to specify a field in the target model to which the relationship should be made.
 
-By default, a junction table for a many to many relationship stores a minimum amount of information: an id for the relationship and the id's for each of the model relationships. It's possible to specify a separate model to operate as a junction table and store additional information about the many to many relationship (e.g. `through=MyCustomModel` uses the `MyCustomTable` model as the many to many junction table). If you define a `through` option, then it's also necessary to use the `through_fields` to tell Django which fields in the new model are used to store references for the model relationships.
+- By default, Django creates relationships to the target model’s primary key (`id` field).
+- `to_field` allows you to point to a different field on the related model.
 
-### **Form values: limit_choices_to**
+#### Syntax:
 
-When Django models with relationships are used in the context of forms, it can be useful and even necessary to delimit the amount of displayed relationships. For example, if you use an `Item` model with a relationship to a `Menu` model, displaying the entire set of `Item` records as forms (e.g. in the Django admin) can be impractical if you have hundreds of `Item` records.
+```python
+class Book(models.Model):
+    isbn = models.CharField(max_length=13, unique=True)
 
-The `limit_choices_to` can be used on a relationship model type to filter the amount of displayed records in forms. The `limit_choices_to` can declare an in-line reference field filter (e.g. `limit_choices_to={'in_stock':True}`) or a callable that performs more complex logic (e.g. `limit_choices_to=my_complex_method_limit_picker`).
+class Library(models.Model):
+    book = models.ForeignKey(Book, to_field="isbn", on_delete=models.CASCADE)
+```
+
+- Here, the `Library` model uses the `isbn` field of the `Book` model (not the default `id`).
+
+---
+
+### 2. **`db_constraint`**
+
+The `db_constraint` option determines whether database-level constraints (like `FOREIGN KEY`) should be created for a relationship.
+
+- It is a boolean option (`True` or `False`).
+- By default, it is set to `True`, meaning Django creates database constraints.
+- Setting it to `False` is useful when working with databases that do not support constraints or for optimization purposes.
+
+#### Syntax:
+
+```python
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+
+class Library(models.Model):
+    book = models.ForeignKey(Book, db_constraint=False, on_delete=models.CASCADE)
+```
+
+- In this example, the `book` ForeignKey does not enforce database-level constraints.
+
+---
+
+### 3. **`swappable`**
+
+The `swappable` option allows you to specify whether the model can be swapped with another model using Django’s `AUTH_USER_MODEL` or similar configurations.
+
+- It is typically used in `AbstractBaseUser` or custom user models.
+- It is set to `True` by default for models like `User`.
+
+#### Syntax:
+
+```python
+class CustomUser(AbstractUser):
+    class Meta:
+        swappable = 'AUTH_USER_MODEL'
+```
+
+- Here, you can swap out the default User model with a custom user model by updating the `AUTH_USER_MODEL` setting in `settings.py`.
+
+---
+
+### 4. **`through`**
+
+The `through` option is used with `ManyToManyField` to define an intermediate model that acts as a "through" table for a many-to-many relationship.
+
+- By default, Django creates an implicit table for many-to-many relationships.
+- Using `through`, you can specify a custom model to handle additional fields or logic for the relationship.
+
+#### Syntax:
+
+```python
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    authors = models.ManyToManyField(Author, through='BookAuthor')
+
+class BookAuthor(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    role = models.CharField(max_length=100)
+```
+
+- The `BookAuthor` model is a custom intermediate table for the `Book` and `Author` relationship, and it includes an extra `role` field.
+
+---
+
+### 5. **`through_fields`**
+
+The `through_fields` option is used when a custom through model is ambiguous and Django cannot determine which fields connect the related models.
+
+- It explicitly specifies which fields on the intermediate model link to the source model and the target model.
+
+#### Syntax:
+
+```python
+class Author(models.Model):
+    name = models.CharField(max_length=100)
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    authors = models.ManyToManyField(
+        Author, through='BookAuthor', through_fields=('book', 'author')
+    )
+
+class BookAuthor(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    role = models.CharField(max_length=100)
+```
+
+- In `through_fields=('book', 'author')`, `book` is the source model field, and `author` is the target model field.
+
+---
+
+### 6. **`db_table`**
+
+The `db_table` option allows you to specify a custom name for the database table associated with a model.
+
+- By default, Django uses the format `appname_modelname` for table names.
+- `db_table` lets you override this behavior.
+
+#### Syntax:
+
+```python
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'custom_book_table'
+```
+
+- Here, the `Book` model's table will be explicitly named `custom_book_table` instead of the default `app_book`.
+
+---
+
+### Summary Table:
+
+| Option           | Purpose                                                                                 |
+| ---------------- | --------------------------------------------------------------------------------------- |
+| `to_field`       | Links a relationship to a specific field (not the primary key) on the related model.    |
+| `db_constraint`  | Controls whether database-level constraints are created for the relationship.           |
+| `swappable`      | Allows a model (e.g., User) to be swapped out with a custom model.                      |
+| `through`        | Specifies a custom intermediate table for `ManyToManyField`.                            |
+| `through_fields` | Explicitly defines which fields in the through table link the source and target models. |
+| `db_table`       | Customizes the database table name for the model.                                       |
+
+---
+
+These options provide flexibility when working with complex relationships and database configurations in Django models. They are particularly useful for advanced use cases, such as customizing table names, adding extra fields to many-to-many relationships, or optimizing database behavior.
