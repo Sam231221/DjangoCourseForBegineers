@@ -1,6 +1,6 @@
 ## **Introduction to Django Views**
 
-In Django, **views** are the components that handle HTTP requests and return HTTP responses. They act as the bridge between your application's models (data) and templates (presentation layer). Views determine what data to show and how to display it.
+In Django, **views** are the components(either class-based or function-based) that handle HTTP requests and return HTTP responses. They act as the bridge between your application's models (data) and templates (presentation layer). Views determine what data to show and how to display it.
 
 ---
 
