@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Contact Us</title>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
+      <h1 class="text-2xl font-bold mb-4">Contact Us</h1>
+      <form id="contactForm" method="POST" class="space-y-4">
+        {% csrf_token %} {{ form.as_p }}
+        <button
+          type="submit"
+          class="w-full bg-blue-500 text-white py-2 rounded"
+        >
+          Submit
+        </button>
+      </form>
+      <div
+        id="successMessage"
+        class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded"
+      >
+        Thank you for your message!
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      const form = document.getElementById("contactForm");
+      const successMessage = document.getElementById("successMessage");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        try {
+          const response = await axios.post(
+            "{% url 'my_app:contact_view' %}",
+            formData
+          );
+          if (response.data.success) {
+            successMessage.classList.remove("hidden");
+            form.reset();
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      });
+    </script>
+  </body>
+</html>
