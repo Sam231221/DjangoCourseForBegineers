@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "my_app",
+    "my_blog",
+    "my_auth",
 ]
 
 MIDDLEWARE = [
@@ -63,6 +65,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "my_auth.context_processors.forms",
             ],
         },
     },
@@ -81,7 +84,7 @@ DATABASES = {
     }
 }
 
-
+AUTH_USER_MODEL = "my_auth.User"
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -101,15 +104,35 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+SESSION_COOKIE_AGE = 60
+
+AUTHENTICATION_BACKENDS = (
+    "social_core.backends.facebook.FacebookOAuth2",
+    "social_core.backends.twitter.TwitterOAuth",
+    "social_core.backends.github.GithubOAuth2",
+    "social_core.backends.google.GoogleOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
+)
+
+SOCIAL_AUTH_FACEBOOK_KEY = "605352750442305"
+SOCIAL_AUTH_FACEBOOK_SECRET = "9b701b2223914aeda73111b89cc295c4"
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
+    "848686387472-1cmojobb1oqs50591bglb73fc9rbac6e.apps.googleusercontent.com"
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "FYOLzOHwhZv_GkDONcoYN3nQ"
+
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "/accounts/login/"
+
+
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
+TIME_ZONE = "Asia/Kathmandu"
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
 
@@ -122,3 +145,13 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# SMTP CONFIGURATION
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+
+EMAIL_HOST_USER = "dimensionalassistanceteam37@gmail.com"
+EMAIL_HOST_PASSWORD = "123@gmailcom"
+GOOGLE_RECAPTCHA_SECRET_KEY = "6LdaeUAfAAAAAM9bU8TxfRTky-ok_qnhsF6gq-za"
