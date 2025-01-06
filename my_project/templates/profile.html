@@ -1,0 +1,45 @@
+<!-- profile.html -->
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+  <div class="container my-4 h-screen mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Profile</h2>
+
+    <!-- Profile Information -->
+    <div class="flex items-center  space-x-6">
+      <div class="flex-shrink-0">
+        {% if user.profile_picture %}
+          <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
+        {% else %}
+          <img src="https://via.placeholder.com/150" alt="Default Profile Picture" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
+        {% endif %}
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold text-gray-800">{{ user.username }}</h3>
+        <p class="text-gray-500">{{ user.email }}</p>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Account Settings</h3>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-gray-600">Change Email</span>
+          <a href="{% url 'my_auth:change-email-view' %}" class="text-blue-600 hover:underline">Change</a>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-gray-600">Change Password</span>
+          <a href="{% url 'my_auth:request-reset-password-view' %}" class="text-blue-600 hover:underline">Change</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="mt-8 text-center">
+      <form method="POST" action="{% url 'my_auth:logout-view' %}">
+        {% csrf_token %}
+        <button type="submit" class="w-full py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Logout</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}
