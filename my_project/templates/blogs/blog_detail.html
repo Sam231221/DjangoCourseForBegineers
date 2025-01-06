@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ blog.title }}{% endblock %}
+{% block content %}
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Blog Content -->
+            <div class="md:w-2/3">
+                <h2 class="text-3xl font-semibold mb-4">{{ blog.title }}</h2>
+                {% if blog.thumbnail %}
+                    <img src="{{ blog.thumbnail.url }}"
+                         alt="{{ blog.title }}"
+                         class="w-full h-80 object-cover mb-4 rounded-md" />
+                {% else %}
+                    <img src="{% static 'img/default.png' %}"
+                         alt="{{ blog.title }}"
+                         class="w-full h-80 object-cover mb-4 rounded-md" />
+                {% endif %}
+                <p class="text-sm text-gray-500 mb-4">Published on {{ blog.date_created }}</p>
+                <div class="text-lg text-gray-700 mb-4">{{ blog.content }}</div>
+                <!-- Comment Section (Optional) -->
+                <div class="mt-8">
+                    <h2 class="text-2xl font-semibold mb-4">Comments</h2>
+                    <div id="comments" class="space-y-4">
+                        <div class="bg-white p-4 rounded-md shadow">
+                            <p class="font-semibold">John Doe</p>
+                            <p class="text-gray-600">Great article! Very informative.</p>
+                            <p class="text-sm text-gray-500">2023-05-22</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-md shadow">
+                            <p class="font-semibold">Jane Smith</p>
+                            <p class="text-gray-600">I learned a lot from this. Thanks for sharing!</p>
+                            <p class="text-sm text-gray-500">2023-05-23</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Sidebar -->
+            <div class="md:w-1/3 space-y-8">
+                <!-- Recent Blogs -->
+                <div>
+                    <h2 class="text-2xl font-semibold mb-4">Recent Blogs</h2>
+                    <div id="recent-blogs" class="space-y-2">
+                        {% for i in recent_blogs %}
+                            <div class="bg-white p-2 rounded-md shadow flex items-center">
+                                {% if i.thumbnail %}
+                                    <img src="{{ i.thumbnail.url }}"
+                                         alt="{{ i.title }}"
+                                         class="w-20 h-20 object-cover rounded-md mr-4" />
+                                {% else %}
+                                    <img src="{% static 'img/default.png' %}"
+                                         alt="{{ i.title }}"
+                                         class="w-20 h-20 object-cover rounded-md mr-4" />
+                                {% endif %}
+                                <div>
+                                    <a href="{{ i.get_absolute_url }}">
+                                        <h4 class="font-semibold">{{ i.title }}</h4>
+                                    </a>
+                                    <p class="text-sm text-gray-500">{{ i.date_created }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- Popular Blogs -->
+                <div>
+                    <h2 class="text-2xl font-semibold mb-4">Popular Blogs</h2>
+                    <div id="popular-blogs" class="space-y-2">
+                        {% for i in popular_blogs %}
+                            <div class="bg-white p-2 rounded-md shadow flex items-center">
+                                {% if i.thumbnail %}
+                                    <img src="{{ i.thumbnail.url }}"
+                                         alt="{{ i.title }}"
+                                         class="w-20 h-20 object-cover rounded-md mr-4" />
+                                {% else %}
+                                    <img src="{% static 'img/default.png' %}"
+                                         alt="{{ i.title }}"
+                                         class="w-20 h-20 object-cover rounded-md mr-4" />
+                                {% endif %}
+                                <div>
+                                    <a href="{{ i.get_absolute_url }}">
+                                        <h4 class="font-semibold">{{ i.title }}</h4>
+                                    </a>
+                                    <p class="text-sm text-gray-500">{{ i.date_created }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
