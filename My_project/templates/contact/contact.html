@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+              rel="stylesheet"
+              integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+              crossorigin="anonymous">
+        <title>Contact Us</title>
+    </head>
+    <body class="bg-gray-100 min-h-screen flex gap-3 items-center justify-center">
+        <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
+            <h1 class="text-2xl font-bold mb-4">Contact Form using forms.Form without widget</h1>
+            <form id="contactForm" method="POST" class="space-y-4">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Submit</button>
+            </form>
+        </form>
+        <div id="successMessage"
+             class="hidden mt-4 p-4 bg-green-100 text-green-700 rounded">Thank you for your message!</div>
+    </div>
+    <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-4">PasswordForgot Form using forms.Form along with widget</h1>
+        <form id="passwordForm" method="POST" class="space-y-4">
+            {% csrf_token %}
+            {{ password_forgot_form.as_p }}
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Submit</button>
+        </form>
+    </div>
+    <div class="bg-white p-6 rounded shadow-md w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-4">Product Form using forms.ModelForm with widget</h1>
+        <form id="productForm" method="POST" class="space-y-4">
+            {% csrf_token %}
+            {{ product_form.as_p }}
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Submit</button>
+        </form>
+    </form>
+</div>
+<div class="bg-white p-6 rounded shadow-md w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-4">Checkout Form using forms.ModelForm with no widget</h1>
+    <form id="checkoutForm" method="POST" class="space-y-4">
+        {% csrf_token %}
+        {{ checkoutform.as_p }}
+        <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Submit</button>
+    </form>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+      const form = document.getElementById("contactForm");
+      const successMessage = document.getElementById("successMessage");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        try {
+          const response = await axios.post(
+            "{% url 'my_app:contact_view' %}",
+            formData
+          );
+          if (response.data.success) {
+            successMessage.classList.remove("hidden");
+            form.reset();
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      });
+</script>
+</body>
+</html>

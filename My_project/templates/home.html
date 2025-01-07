@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Home Page{% endblock %}
+{% block content %}
+    <!-- Main Content -->
+    <main class="px-6 py-12">
+        <!-- Blogs Section -->
+        <section id="blogs" class="mb-12">
+            <h2 class="text-2xl font-bold mb-6">Featured Blogs</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Blog Card -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-green-600 mb-4">Understanding JavaScript Closures</h3>
+                    <p class="mb-4">Delve into closures, one of JavaScript's most fascinating concepts.</p>
+                    <a href="#" class="text-green-500 font-bold hover:underline">Read More →</a>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-green-600 mb-4">Async/Await Demystified</h3>
+                    <p class="mb-4">Learn how to handle asynchronous operations with elegance.</p>
+                    <a href="#" class="text-green-500 font-bold hover:underline">Read More →</a>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-green-600 mb-4">CSS Grid vs Flexbox</h3>
+                    <p class="mb-4">Which layout tool is best for your next project?</p>
+                    <a href="#" class="text-green-500 font-bold hover:underline">Read More →</a>
+                </div>
+            </div>
+        </section>
+        <!-- About Section -->
+        <section id="about" class="mb-12">
+            <h2 class="text-2xl font-bold mb-6">About Acadepra</h2>
+            <p>
+                Acadepra is your go-to platform for technical content. From beginner tutorials to advanced guides, we aim to empower tech enthusiasts with knowledge.
+            </p>
+        </section>
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2 class="text-2xl font-bold mb-6">Contact Us</h2>
+            <form id="contact-form" class="grid gap-4 max-w-lg">
+                <input type="text"
+                       placeholder="Your Name"
+                       class="p-3 border border-gray-300 rounded-lg"
+                       required>
+                <input type="email"
+                       placeholder="Your Email"
+                       class="p-3 border border-gray-300 rounded-lg"
+                       required>
+                <textarea placeholder="Your Message"
+                          class="p-3 border border-gray-300 rounded-lg"
+                          required></textarea>
+                <button type="submit"
+                        class="px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition">
+                    Send Message
+                </button>
+            </form>
+        </section>
+    </main>
+{% endblock %}

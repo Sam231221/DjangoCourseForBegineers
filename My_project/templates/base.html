@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Acadepra|
+            {% block title %}{% endblock %}
+        </title>
+        <link rel="stylesheet"
+              href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
+        <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
+        <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="font-sans bg-gray-100 text-gray-800">
+        {% include "header.html" %}
+        {% block content %}{% endblock %}
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white text-center py-4">
+            <p>&copy; 2025 Acadepra. All rights reserved.</p>
+        </footer>
+        <script src="{% static 'js/main.js' %}"></script>
+        <script src="https://www.google.com/recaptcha/api.js"></script>
+        {% include 'utilities/flash_message.html' %}
+    </body>
+</html>
