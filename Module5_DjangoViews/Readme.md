@@ -918,3 +918,135 @@ def send_verification_email(user, request):
     verification_url = f"http://{get_current_site(request).domain}/verify/{uid}/{token}"
     send_mail('Verify your email', f'Click here to verify your email: {verification_url}', 'noreply@mydomain.com', [user.email])
 ```
+
+# C. Miscellaneous
+
+### 1. **Django Signals**
+
+Django **signals** are a mechanism for decoupling different parts of an application. They allow certain senders to notify subscribers when specific actions occur. Signals help in implementing event-driven programming in Django.
+
+#### Commonly Used Signals:
+
+- `pre_save` / `post_save`: Triggered before or after a model's save operation.
+- `pre_delete` / `post_delete`: Triggered before or after a model is deleted.
+- Custom signals can also be created.
+
+#### Example: Using `post_save` Signal
+
+```python
+# signals.py
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from .models import Profile
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+```
+
+```python
+# apps.py
+from django.apps import AppConfig
+
+class MyAppConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'myapp'
+
+    def ready(self):
+        import myapp.signals  # Import signals here
+```
+
+In this example, a `Profile` instance is automatically created whenever a new `User` instance is saved.
+
+---
+
+### 2. **Context Processors**
+
+Context processors are Python functions that return a dictionary of data to be added to the template context. These are globally available in templates without passing explicitly through the view.
+
+#### Example: Custom Context Processor
+
+1. Create a context processor:
+
+```python
+# context_processors.py
+def site_name(request):
+    return {
+        'site_name': 'My Django Site'
+    }
+```
+
+2. Add it to `TEMPLATES` in `settings.py`:
+
+```python
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'myapp.context_processors.site_name',  # Add here
+            ],
+        },
+    },
+]
+```
+
+3. Use it in a template:
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ site_name }}</title>
+  </head>
+  <body>
+    <h1>Welcome to {{ site_name }}</h1>
+  </body>
+</html>
+```
+
+The `site_name` variable will now be available in all templates.
+
+---
+
+### 3. **`re_path`**
+
+`re_path` is used to define URL patterns with regular expressions. It's similar to `path` but allows more complex matching using regex.
+
+#### Example: Using `re_path`
+
+```python
+# urls.py
+from django.urls import re_path
+from . import views
+
+urlpatterns = [
+    re_path(r'^articles/(\d{4})/$', views.year_archive, name='year_archive'),
+]
+```
+
+#### Explanation:
+
+- The URL pattern `^articles/(\d{4})/$` matches URLs like `articles/2025/`.
+- `(\d{4})` captures a 4-digit number, which is passed to the `year_archive` view.
+
+#### View Function:
+
+```python
+# views.py
+from django.http import HttpResponse
+
+def year_archive(request, year):
+    return HttpResponse(f"Articles from the year {year}")
+```
+
+When a user visits `/articles/2025/`, the response will be:  
+`Articles from the year 2025`.
+
+---
