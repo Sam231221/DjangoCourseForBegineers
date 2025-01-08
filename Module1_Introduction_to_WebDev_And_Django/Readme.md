@@ -83,8 +83,9 @@ Poetry is a modern dependency and packaging tool for Python. It offers a streaml
 #### 2. **Create a New Poetry Project**
 
 - Navigate to your desired project directory in your terminal.
-- Initialize a new Poetry project:
+- Create a Folder that will contain your django project.Then,initialize a new Poetry project inside it:
   ```bash
+  cd My_project_drf
   poetry init
   ```
   - Follow the prompts to provide basic information about your project.
@@ -100,9 +101,10 @@ Poetry is a modern dependency and packaging tool for Python. It offers a streaml
 
 - Use the `poetry run` command to execute Django commands within your Poetry environment:
   ```bash
-  poetry run django-admin startproject my_project
+  poetry run django-admin startproject my_project .
   ```
   Replace `my_project` with your desired project name.
+  The above command creates a virtual environment for your project.
 
 #### 5. **Activate the Virtual Environment**
 
