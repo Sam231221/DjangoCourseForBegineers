@@ -537,51 +537,253 @@ DRF supports two main types of views:
 - **Function-Based Views (FBVs)**
 - **Class-Based Views (CBVs)**
 
-#### Function-Based Views
+In Django Rest Framework (DRF), you can implement APIs using three main styles: **Function-Based Views (FBVs)**, **Class-Based Views (CBVs)**, and **Generic Class-Based Views (GCBVs)**. Below are examples of each type:
 
-FBVs provide explicit handling of HTTP methods:
+---
+
+#### **1. Function-Based API Views**
+
+FBVs are simple Python functions where you handle HTTP methods explicitly using conditions.
 
 ```python
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 @api_view(['GET', 'POST'])
-def blog_listing_view(request):
+def contact_view(request):
     if request.method == 'GET':
-        data = {"message": "GET request received"}
+        data = {"message": "GET method called"}
         return Response(data)
     elif request.method == 'POST':
-        return Response({"message": "POST request received"})
+        data = {"message": "POST method called", "data": request.data}
+        return Response(data, status=status.HTTP_201_CREATED)
 ```
 
-#### Class-Based Views
+---
 
-CBVs use DRF's generic views for more structured handling:
+#### **2. Class-Based API Views (CBVs)**
+
+CBVs are Python classes where you define methods for each HTTP verb.
+
+#### Example: Standard `APIView`
 
 ```python
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
-class MyAPIView(APIView):
+class ExampleAPIView(APIView):
     def get(self, request):
-        return Response({"message": "GET request received"})
+        data = {"message": "GET method called"}
+        return Response(data)
 
     def post(self, request):
-        return Response({"message": "POST request received"})
+        data = {"message": "POST method called", "data": request.data}
+        return Response(data, status=status.HTTP_201_CREATED)
 ```
 
-#### Using Generic Views
+#### Example: `ViewSet`
 
-To avoid repetitive code, use DRF's mixins or `GenericAPIView`:
+A `ViewSet` handles multiple HTTP methods for a resource. It’s useful for RESTful patterns.
 
 ```python
-from rest_framework.generics import ListCreateAPIView
-from .models import MyModel
-from .serializers import MyModelSerializer
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
 
-class MyModelListCreateView(ListCreateAPIView):
-    queryset = MyModel.objects.all()
-    serializer_class = MyModelSerializer
+class ExampleViewSet(ViewSet):
+    def list(self, request):  # Handles GET for listing all resources
+        data = {"message": "List of resources"}
+        return Response(data)
+
+    def create(self, request):  # Handles POST for creating a resource
+        data = {"message": "Resource created", "data": request.data}
+        return Response(data)
+
+    def retrieve(self, request, pk=None):  # Handles GET for a single resource
+        data = {"message": f"Details of resource {pk}"}
+        return Response(data)
 ```
+
+---
+
+#### **3. Generic Class-Based Views (GCBVs)**
+
+Generic API Views in DRF are pre-built views that provide a simple and consistent way to perform common operations on resources. They abstract away a lot of coding that developers would otherwise need to write for handling basic CRUD actions.
+
+Here are some of the most commonly used Generic API Views:
+
+**1. ListAPIView**
+
+- **Purpose:** Retrieves a list of objects.
+- **Example:**
+
+```python
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
+
+class BookListView(generics.ListAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+```
+
+**2. RetrieveAPIView**
+
+- **Purpose:** Retrieves a single object.
+- **Example:**
+
+```python
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
+
+class BookDetailView(generics.RetrieveAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    lookup_field = 'isbn'  # Use ISBN as the unique identifier
+```
+
+**3. CreateAPIView**
+
+- **Purpose:** Creates a new object.
+- **Example:**
+
+```python
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
+
+class BookCreateView(generics.CreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+```
+
+**4. UpdateAPIView**
+
+- **Purpose:** Updates an existing object.
+- **Example:**
+
+```python
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
+
+class BookUpdateView(generics.UpdateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    lookup_field = 'isbn'
+```
+
+**5. DestroyAPIView**
+
+- **Purpose:** Deletes an existing object.
+- **Example:**
+
+```python
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
+
+class BookDeleteView(generics.DestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    lookup_field = 'isbn'
+```
+
+**6. ListCreateAPIView**
+
+- **Purpose:** Combines `ListAPIView` and `CreateAPIView` to handle both listing and creating objects in a single view.
+- **Example:**
+
+```python
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
+
+class BookListCreateView(generics.ListCreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+```
+
+**7. RetrieveUpdateDestroyAPIView**
+
+- **Purpose:** Combines `RetrieveAPIView`, `UpdateAPIView`, and `DestroyAPIView` to handle retrieving, updating, and deleting a single object in a single view.
+- **Example:**
+
+```python
+from rest_framework import generics
+from .models import Book
+from .serializers import BookSerializer
+
+class BookRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    lookup_field = 'isbn'
+```
+
+#### **4.Viewsets**
+
+Viewsets are a powerful tool in DRF that simplify API development by providing a higher-level abstraction for creating common API endpoints. They promote code organization, reusability, and maintainability while reducing boilerplate code.
+
+**Key Viewset Classes:**
+
+- **`ModelViewSet`:** This is the most commonly used Viewset. It provides all the standard HTTP methods (GET, POST, PUT, PATCH, DELETE) for a given model.
+- **`ReadOnlyModelViewSet`:** Similar to `ModelViewSet`, but only allows GET and HEAD requests, making it suitable for read-only APIs.
+- **`GenericViewSet`:** A base class for creating custom Viewsets. It doesn't provide any default actions, allowing you to define your own methods and behavior.
+
+**Example:**
+
+```python
+from rest_framework import viewsets
+from .models import Book
+from .serializers import BookSerializer
+
+class BookViewSet(viewsets.ModelViewSet):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+```
+
+In this example:
+
+1. We import `viewsets` from `rest_framework`.
+2. We define a `BookViewSet` class that inherits from `viewsets.ModelViewSet`.
+3. We specify the `queryset` to be all instances of the `Book` model.
+4. We define the `serializer_class` to be the `BookSerializer` we created for our model.
+
+**Using Viewsets with Routers:**
+
+- DRF's Routers are used to automatically generate URL patterns for Viewsets.
+- **`DefaultRouter`:** The most common Router, it creates URL patterns for common actions (list, retrieve, create, etc.) using standard URL conventions.
+
+```python
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register(r'books', BookViewSet)
+
+# Now, you can access the following URLs:
+# - /books/ (GET: list all books, POST: create a new book)
+# - /books/<pk>/ (GET: retrieve a single book, PUT/PATCH: update, DELETE: delete)
+```
+
+**Benefits of Using Viewsets:**
+
+- **Reduced Boilerplate Code:** Significantly less code is required compared to defining individual views for each HTTP method.
+- **Improved Code Reusability:** Viewsets can be easily reused across different parts of your API.
+- **Enhanced Maintainability:** Changes to API behavior can be made in one place, making maintenance easier.
+
+---
+
+### **Key Differences:**
+
+| Type      | Use Case                                                                                  |
+| --------- | ----------------------------------------------------------------------------------------- |
+| **FBVs**  | When you need simple logic and minimal abstraction.                                       |
+| **CBVs**  | When you want to organize code into classes with methods for each HTTP verb.              |
+| **GCBVs** | When you need CRUD operations quickly and want to minimize the code for repetitive tasks. |
+
+Each style has its purpose, and you can mix them based on the complexity and requirements of your API.
 
 ---
 
@@ -1181,3 +1383,370 @@ Now, the client can use `/products/?q=laptop` instead of `/products/?search=lapt
 3. **Custom Filters**: For complex queries, write a custom filter backend.
 
 ---
+
+## C. Advanced API Development
+
+### 1. **Implementing CRUD Operations in APIs**
+
+CRUD refers to the fundamental operations of persistent storage—Create, Read, Update, and Delete. In DRF, these are implemented using serializers, views, and routers.
+
+#### Example: CRUD with a Model `Book`
+
+**Model Definition**
+
+```python
+from django.db import models
+
+class Book(models.Model):
+    title = models.CharField(max_length=100)
+    author = models.CharField(max_length=100)
+    published_date = models.DateField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+```
+
+**Serializer**
+
+```python
+from rest_framework import serializers
+from .models import Book
+
+class BookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        fields = '__all__'
+```
+
+**Views**
+
+- **Class-Based Views (CBVs):**
+
+```python
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from .models import Book
+from .serializers import BookSerializer
+
+class BookListCreateView(ListCreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+
+class BookDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+```
+
+- **Viewsets and Routers:**
+
+```python
+from rest_framework.viewsets import ModelViewSet
+from .models import Book
+from .serializers import BookSerializer
+
+class BookViewSet(ModelViewSet):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+```
+
+```python
+from rest_framework.routers import DefaultRouter
+from .views import BookViewSet
+
+router = DefaultRouter()
+router.register(r'books', BookViewSet)
+```
+
+---
+
+### 2. **Versioning and Throttling APIs**
+
+#### **a. Versioning**
+
+Versioning in Django REST Framework (DRF) is a way to manage changes in your API over time, ensuring backward compatibility while introducing new features or updates. It allows clients to specify which version of the API they want to interact with.
+
+As your application evolves, you might need to introduce changes to your API endpoints, request/response structures, or data representations. However, existing clients might depend on the current API structure. Versioning helps maintain a balance between introducing new features and supporting existing clients.
+
+**Types of Versioning**
+
+1. **URL Path Versioning**:
+
+   - Adds the version number to the URL.
+   - Example: `/v1/resource/` or `/api/v2/resource/`.
+
+   ```python
+   # urls.py
+   from django.urls import path, include
+
+   urlpatterns = [
+       path('v1/', include('myapp.api.v1.urls')),
+       path('v2/', include('myapp.api.v2.urls')),
+   ]
+   ```
+
+2. **Query Parameter Versioning**:
+
+   - The version is specified as a query parameter in the URL.
+   - Example: `/resource/?version=1.0`.
+
+   ```python
+   # settings.py
+   REST_FRAMEWORK = {
+       'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.QueryParameterVersioning',
+   }
+   ```
+
+   ```python
+   # views.py
+   from rest_framework.response import Response
+   from rest_framework.views import APIView
+
+   class ExampleView(APIView):
+       def get(self, request, *args, **kwargs):
+           version = request.version  # Access version
+           return Response({"version": version})
+   ```
+
+3. **Host Name Versioning**:
+
+   - Version is embedded in the subdomain or hostname.
+   - Example: `v1.api.example.com` or `api-v2.example.com`.
+
+   ```python
+   # settings.py
+   REST_FRAMEWORK = {
+       'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.HostNameVersioning',
+   }
+   ```
+
+   - Configure your DNS and Django `ALLOWED_HOSTS` to support this.
+
+4. **Header Versioning**:
+
+   - The version is specified in the request headers.
+   - Example: `Version: 1.0`.
+
+   ```python
+   # settings.py
+   REST_FRAMEWORK = {
+       'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.HeaderVersioning',
+   }
+   ```
+
+   ```http
+   GET /resource/ HTTP/1.1
+   Version: 1.0
+   ```
+
+5. **Accept Header Versioning**:
+
+   - The version is part of the `Accept` header.
+   - Example: `Accept: application/vnd.myapp.v1+json`.
+
+   ```python
+   # settings.py
+   REST_FRAMEWORK = {
+       'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
+   }
+   ```
+
+**Implementing Versioning**
+
+1. **Set Default Versioning**:
+   Define the default versioning strategy in your `settings.py`.
+
+   ```python
+   REST_FRAMEWORK = {
+       'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+       'DEFAULT_VERSION': '1.0',  # Default version if none is specified
+   }
+   ```
+
+2. **Accessing Version in Views**:
+   Use the `request.version` attribute in your views to handle version-specific logic.
+
+   ```python
+   from rest_framework.response import Response
+   from rest_framework.views import APIView
+
+   class ExampleView(APIView):
+       def get(self, request, *args, **kwargs):
+           if request.version == '1.0':
+               data = {"message": "Response for version 1.0"}
+           elif request.version == '2.0':
+               data = {"message": "Response for version 2.0"}
+           else:
+               data = {"message": "Default version response"}
+           return Response(data)
+   ```
+
+3. **Custom Versioning**:
+   You can define your own versioning class by extending `BaseVersioning`.
+
+   ```python
+   from rest_framework.versioning import BaseVersioning
+
+   class CustomVersioning(BaseVersioning):
+       def determine_version(self, request, *args, **kwargs):
+           return request.headers.get('X-Custom-Version', '1.0')
+   ```
+
+   ```python
+   # settings.py
+   REST_FRAMEWORK = {
+       'DEFAULT_VERSIONING_CLASS': 'path.to.CustomVersioning',
+   }
+   ```
+
+---
+
+**Best Practices**
+
+- **Deprecate Old Versions Gradually**: Provide a clear deprecation policy for older versions.
+- **Documentation**: Clearly document the available API versions and their differences.
+- **Testing**: Test each version independently to avoid breaking changes.
+- **Consistency**: Use the same versioning scheme across all endpoints.
+
+By using versioning in DRF, you can maintain a scalable and flexible API while accommodating future changes effectively.
+
+#### **b. Throttling**
+
+Throttling in Django Rest Framework (DRF) is a mechanism to control the rate of requests that a client can make to an API. This is useful to prevent abuse, ensure fair usage, and optimize server performance.
+
+**Steps to Implement Throttling in DRF:**
+
+1. **Understand DRF's Throttling Classes**:
+   DRF provides built-in throttling classes:
+
+   - **`AnonRateThrottle`**: Limits the rate of requests for anonymous users.
+   - **`UserRateThrottle`**: Limits the rate of requests for authenticated users.
+   - **Custom Throttle Classes**: Allows you to define custom throttling logic.
+
+2. **Enable Throttling in DRF Settings**:
+   Add or update the `DEFAULT_THROTTLE_CLASSES` and `DEFAULT_THROTTLE_RATES` settings in the `settings.py` file:
+
+   ```python
+   REST_FRAMEWORK = {
+       'DEFAULT_THROTTLE_CLASSES': [
+           'rest_framework.throttling.AnonRateThrottle',
+           'rest_framework.throttling.UserRateThrottle',
+       ],
+       'DEFAULT_THROTTLE_RATES': {
+           'anon': '5/min',  # 5 requests per minute for anonymous users
+           'user': '10/min',  # 10 requests per minute for authenticated users
+       }
+   }
+   ```
+
+3. **Apply Throttling to Specific Views**:
+   Throttling can be applied globally (using the settings above) or on specific views using the `throttle_classes` attribute.
+
+   Example:
+
+   ```python
+   from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
+   from rest_framework.views import APIView
+   from rest_framework.response import Response
+
+   class ExampleView(APIView):
+       throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
+       def get(self, request, *args, **kwargs):
+           return Response({"message": "This is a throttled view!"})
+   ```
+
+4. **Customize Throttle Rates**:
+   You can define custom throttle rates by subclassing one of DRF's throttling classes:
+
+   ```python
+   from rest_framework.throttling import UserRateThrottle
+
+   class BurstRateThrottle(UserRateThrottle):
+       rate = '20/min'
+
+   class SustainedRateThrottle(UserRateThrottle):
+       rate = '100/day'
+   ```
+
+   Then, use these custom throttle classes in your views:
+
+   ```python
+   class CustomThrottleView(APIView):
+       throttle_classes = [BurstRateThrottle, SustainedRateThrottle]
+
+       def get(self, request, *args, **kwargs):
+           return Response({"message": "Custom throttling applied!"})
+   ```
+
+5. **Override Throttle Behavior** (Optional):
+   To create a fully custom throttle logic, subclass `BaseThrottle` and override its `allow_request` and `wait` methods:
+
+   ```python
+   from rest_framework.throttling import BaseThrottle
+
+   class CustomThrottle(BaseThrottle):
+       def allow_request(self, request, view):
+           # Custom logic to allow or deny the request
+           return True  # Example: Always allow
+
+       def wait(self):
+           # Return the number of seconds to wait before the next request
+           return None
+   ```
+
+6. **Testing Throttling**:
+   Test the implementation by making requests to your API and ensuring that requests exceeding the allowed rate return a `429 Too Many Requests` response.
+
+   Example Response:
+
+   ```json
+   {
+     "detail": "Request was throttled. Expected available in 10 seconds."
+   }
+   ```
+
+**Summary of Key Points:**
+
+- Use `AnonRateThrottle` for anonymous users and `UserRateThrottle` for authenticated users.
+- Configure rates in `DEFAULT_THROTTLE_RATES`.
+- Apply throttling globally or at the view level.
+- Extend or override throttling classes for custom behavior.
+
+By following these steps, you can efficiently manage API usage and protect your system from misuse.
+
+**Custom Throttle Classes:**
+
+```python
+from rest_framework.throttling import SimpleRateThrottle
+
+class CustomRateThrottle(SimpleRateThrottle):
+    scope = 'custom'
+    rate = '5/min'
+```
+
+---
+
+### 3. **Deploying REST APIs with Django**
+
+To deploy DRF APIs:
+
+1. **Prepare the Project for Production:**
+
+   - Set up production settings (e.g., `DEBUG=False`, `ALLOWED_HOSTS`, `DATABASES`).
+   - Use `gunicorn` or `uwsgi` as the WSGI server.
+
+2. **Serve Static Files:**
+
+   ```bash
+   python manage.py collectstatic
+   ```
+
+3. **Deploy Using Gunicorn and Nginx:**
+
+   - Install `gunicorn`: `pip install gunicorn`.
+   - Configure Nginx to proxy requests to Gunicorn.
+
+4. **Deploy to a Cloud Platform:**
+   - Use platforms like AWS, Heroku, or DigitalOcean.
+   - Example with Heroku:
+     ```bash
+     heroku create
+     git push heroku main
+     ```
