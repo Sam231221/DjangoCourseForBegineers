@@ -1468,55 +1468,276 @@ As your application evolves, you might need to introduce changes to your API end
 
 1. **URL Path Versioning**:
 
-   - Adds the version number to the URL.
-   - Example: `/v1/resource/` or `/api/v2/resource/`.
+URL path versioning is a common approach in Django Rest Framework (DRF) to handle API versioning. It involves including the version number in the URL path, allowing clients to specify which version of the API they want to use. Here's how you can implement it:
+
+---
+
+**Steps for URL Path Versioning in DRF**
+
+1. **Set Up the DRF Project**
+   Ensure you have a DRF project set up. If not, you can start with:
+
+   ```bash
+   pip install djangorestframework
+   ```
+
+2. **Define Versioned URLs**
+   Include the version number as part of the URL path. For example:
 
    ```python
-   # urls.py
-   from django.urls import path, include
+   from django.urls import path
+   from . import views
 
    urlpatterns = [
-       path('v1/', include('myapp.api.v1.urls')),
-       path('v2/', include('myapp.api.v2.urls')),
+       path('v1/resource/', views.ResourceViewV1.as_view(), name='resource_v1'),
+       path('v2/resource/', views.ResourceViewV2.as_view(), name='resource_v2'),
    ]
    ```
 
+3. **Create Version-Specific Views**
+   Create separate views for different API versions. For example:
+
+   ```python
+   from rest_framework.views import APIView
+   from rest_framework.response import Response
+
+   class ResourceViewV1(APIView):
+       def get(self, request):
+           return Response({"message": "This is version 1 of the API."})
+
+   class ResourceViewV2(APIView):
+       def get(self, request):
+           return Response({"message": "This is version 2 of the API."})
+   ```
+
+4. **Optional: Use a Versioning Scheme**
+   DRF provides built-in support for versioning schemes. You can enable `URLPathVersioning` in your settings:
+
+   ```python
+   REST_FRAMEWORK = {
+       'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+       'DEFAULT_VERSION': 'v1',
+       'ALLOWED_VERSIONS': ['v1', 'v2'],
+   }
+   ```
+
+   Update your URLs to reflect the version placeholder:
+
+   ```python
+   from django.urls import path
+   from . import views
+
+   urlpatterns = [
+       path('<str:version>/resource/', views.ResourceView.as_view(), name='resource'),
+   ]
+   ```
+
+   Modify the view to handle versions dynamically:
+
+   ```python
+   class ResourceView(APIView):
+       def get(self, request, version):
+           if version == 'v1':
+               return Response({"message": "This is version 1 of the API."})
+           elif version == 'v2':
+               return Response({"message": "This is version 2 of the API."})
+           else:
+               return Response({"error": "Unsupported API version."}, status=400)
+   ```
+
+5. **Test Your API**
+   Test the different versions of your API by accessing URLs like:
+   - `http://localhost:8000/v1/resource/`
+   - `http://localhost:8000/v2/resource/`
+
+---
+
+##### **Advantages of URL Path Versioning**
+
+- **Clarity**: Version is explicitly visible in the URL.
+- **Cache-Friendly**: Easier to manage caching and CDN configurations per version.
+- **Backward Compatibility**: Allows clients to continue using older versions while new features are added in updated versions.
+
+##### **Considerations**
+
+- Avoid proliferating versions unnecessarily. Deprecate old versions when no longer needed.
+- Ensure proper documentation for each version to guide API consumers.
+
+---
+
 2. **Query Parameter Versioning**:
 
-   - The version is specified as a query parameter in the URL.
-   - Example: `/resource/?version=1.0`.
+Query parameter versioning is another approach to versioning APIs in Django Rest Framework (DRF). Instead of specifying the version in the URL path, the version is passed as a query parameter. For example:  
+`http://localhost:8000/resource/?version=v1`
+
+**Implement Query Parameter Versioning**
+
+1. **Set Up DRF for Query Parameter Versioning**
+   Enable query parameter versioning in your DRF settings:
 
    ```python
-   # settings.py
    REST_FRAMEWORK = {
        'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.QueryParameterVersioning',
+       'DEFAULT_VERSION': 'v1',  # The default version to use if none is provided
+       'ALLOWED_VERSIONS': ['v1', 'v2'],  # Specify supported versions
+       'VERSION_PARAM': 'version',  # The query parameter name (default is "version")
    }
    ```
 
-   ```python
-   # views.py
-   from rest_framework.response import Response
-   from rest_framework.views import APIView
+2. **Modify the Views**
+   Use the `request.version` attribute to handle version-specific logic in your views:
 
-   class ExampleView(APIView):
-       def get(self, request, *args, **kwargs):
-           version = request.version  # Access version
-           return Response({"version": version})
+   ```python
+   from rest_framework.views import APIView
+   from rest_framework.response import Response
+
+   class ResourceView(APIView):
+       def get(self, request):
+           if request.version == 'v1':
+               return Response({"message": "This is version 1 of the API."})
+           elif request.version == 'v2':
+               return Response({"message": "This is version 2 of the API."})
+           else:
+               return Response({"error": "Unsupported API version."}, status=400)
    ```
+
+3. **Define the URLs**
+   Create a single route without including the version in the URL path:
+
+   ```python
+   from django.urls import path
+   from .views import ResourceView
+
+   urlpatterns = [
+       path('resource/', ResourceView.as_view(), name='resource'),
+   ]
+   ```
+
+4. **Test Your API**
+   Use query parameters to access different versions of the API:
+   - `http://localhost:8000/resource/?version=v1`
+   - `http://localhost:8000/resource/?version=v2`
+
+---
+
+**Advantages of Query Parameter Versioning**
+
+1. **Non-Intrusive URLs**: Keeps URLs clean without embedding version information in the path.
+2. **Flexibility**: Allows clients to switch versions dynamically by changing the query parameter value.
+3. **Backward Compatibility**: Similar to path versioning, older versions remain accessible.
+
+---
+
+**Considerations**
+
+1. **Visibility**: Query parameters might not be as visible or intuitive to API consumers as path-based versioning.
+2. **Caching**: May require careful cache configuration since different versions share the same path.
+3. **Validation**: Ensure strict validation for allowed versions to prevent misuse of the API.
+
+---
+
+**Which to Choose: Path vs. Query Parameter Versioning?**
+
+- **Path Versioning**: Better for APIs with a long lifecycle or public-facing APIs, as it's more explicit.
+- **Query Parameter Versioning**: Ideal for internal APIs or APIs with fewer consumers, where simplicity is preferred.
+
+---
 
 3. **Host Name Versioning**:
+   **host name versioning** is a technique to differentiate versions of your API based on the hostname of the request. This approach allows you to serve different versions of your API from different hostnames or subdomains, such as:
 
-   - Version is embedded in the subdomain or hostname.
-   - Example: `v1.api.example.com` or `api-v2.example.com`.
+- `api.v1.example.com` for version 1
+- `api.v2.example.com` for version 2
 
-   ```python
-   # settings.py
-   REST_FRAMEWORK = {
-       'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.HostNameVersioning',
-   }
-   ```
+This is useful when you want to provide versioning without relying on URL paths (`/v1/resource`) or query parameters (`?version=1`).
 
-   - Configure your DNS and Django `ALLOWED_HOSTS` to support this.
+**Steps to Implement Host Name Versioning in DRF**
+
+1. **Enable Versioning in DRF**:
+   Set up DRF to use a custom versioning scheme based on the hostname.
+
+2. **Define a Custom Versioning Class**:
+   Create a custom versioning class that extracts the version from the hostname.
+
+3. **Update Settings**:
+   Configure DRF to use the custom versioning class.
+
+---
+
+**1. Create a Custom Versioning Class**
+
+Create a file, e.g., `versioning.py` in your app:
+
+```python
+from rest_framework.versioning import BaseVersioning
+from django.core.exceptions import NotFound
+
+class HostNameVersioning(BaseVersioning):
+    def determine_version(self, request, *args, **kwargs):
+        # Extract the hostname from the request
+        host = request.get_host()
+
+        # Define mapping of hostnames to versions
+        version_map = {
+            'api.v1.example.com': 'v1',
+            'api.v2.example.com': 'v2',
+        }
+
+        # Get the version based on the hostname
+        version = version_map.get(host)
+
+        if not version:
+            raise NotFound(f"API version not found for host: {host}")
+
+        return version
+```
+
+**2. Update DRF Settings**
+
+In your `settings.py`, specify the versioning scheme:
+
+```python
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'myapp.versioning.HostNameVersioning',
+    'DEFAULT_VERSION': 'v1',  # Optional: default version
+    'ALLOWED_VERSIONS': ['v1', 'v2'],  # Optional: list of allowed versions
+}
+```
+
+**3. Version-Specific Views**
+
+You can handle version-specific behavior in your views:
+
+```python
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class ExampleView(APIView):
+    def get(self, request, *args, **kwargs):
+        version = request.version  # Extract version from the request
+        if version == 'v1':
+            return Response({'message': 'This is version 1 of the API'})
+        elif version == 'v2':
+            return Response({'message': 'This is version 2 of the API'})
+        return Response({'message': 'Unknown version'}, status=400)
+```
+
+**4. Routing and Host Configuration**
+
+Configure your DNS or reverse proxy (e.g., Nginx) to route requests to the appropriate hostname. For example:
+
+- `api.v1.example.com` points to the DRF app.
+- `api.v2.example.com` points to the same app but processes requests differently based on the version extracted from the hostname.
+
+---
+
+**Advantages of Host Name Versioning**
+
+1. **Clear Separation**: Each version has a dedicated hostname, making it easy to manage.
+2. **Backward Compatibility**: Older clients can continue to use the older version hostname.
+3. **No URL Changes**: Avoids cluttering URLs with version information.
+
+---
 
 4. **Header Versioning**:
 
@@ -1533,18 +1754,6 @@ As your application evolves, you might need to introduce changes to your API end
    ```http
    GET /resource/ HTTP/1.1
    Version: 1.0
-   ```
-
-5. **Accept Header Versioning**:
-
-   - The version is part of the `Accept` header.
-   - Example: `Accept: application/vnd.myapp.v1+json`.
-
-   ```python
-   # settings.py
-   REST_FRAMEWORK = {
-       'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
-   }
    ```
 
 **Implementing Versioning**
