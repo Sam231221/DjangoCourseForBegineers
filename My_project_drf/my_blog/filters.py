@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from .models import Product
+from .models import Product, Blog
 
 
 class ProductFilter(filters.FilterSet):
@@ -14,3 +14,17 @@ class ProductFilter(filters.FilterSet):
     class Meta:
         model = Product
         fields = ["price", "name", "category"]
+
+
+class BlogFilter(filters.FilterSet):
+    views = filters.RangeFilter()  # Allows filtering by views range
+    title = filters.CharFilter(
+        lookup_expr="icontains"
+    )  # Case-insensitive search by title
+    categories = filters.CharFilter(
+        field_name="categories__name", lookup_expr="icontains"
+    )  # Case-insensitive filter by category name
+
+    class Meta:
+        model = Blog
+        fields = ["views", "title", "categories"]
