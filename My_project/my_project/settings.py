@@ -161,4 +161,6 @@ EMAIL_PORT = 587
 
 EMAIL_HOST_USER = "dimensionalassistanceteam37@gmail.com"
 EMAIL_HOST_PASSWORD = "cuao xhfe trej kixc"
+
+
 GOOGLE_RECAPTCHA_SECRET_KEY = "6LdaeUAfAAAAAM9bU8TxfRTky-ok_qnhsF6gq-za"
