@@ -105,9 +105,12 @@ Here’s a comprehensive **Django commands cheatsheet** for quick reference:
     python manage.py loaddata filename.json
     ```
 15. **Dump data to a JSON file**
+
     ```bash
-    python manage.py dumpdata app_name.ModelName --indent 2 > filename.json
+    python manage.py dumpdata myapp --exclude auth --exclude contenttypes --exclude sessions --exclude admin.logentry --indent 4 > fixtures/data.json
+
     ```
+
 16. **Delete database entries**
     ```bash
     python manage.py flush
