@@ -100,7 +100,7 @@ Here’s a comprehensive **Django commands cheatsheet** for quick reference:
 
 ### **Data Management**
 
-14. **Load data from a JSON file**
+14. **Load data from JSON file**
     ```bash
     python manage.py loaddata filename.json
     ```
