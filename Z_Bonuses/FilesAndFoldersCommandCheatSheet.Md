@@ -30,7 +30,7 @@
 | Copy files/folders      | `cp Source Dest`        | `Command + C` → `Command + V`          |
 | Move files/folders      | `mv Source Dest`        | `Command + C` → `Command + Option + V` |
 | List directory contents | `ls`                    | N/A                                    |
-| Navigate to a folder    | `cd FolderPath`         | N/A                                    |
+| Navigate to folder      | `cd FolderPath`         | N/A                                    |
 | Navigate back           | `cd ..`                 | `Command + [` (in Finder)              |
 | Open Finder             | `open .`                | `Command + Option + Space`             |
 | Search for files        | `find . -name FileName` | `Command + F` in Finder                |
